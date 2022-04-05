@@ -42,6 +42,14 @@
       "conditions": {
         "feature": "bygonenether:piglin_manor"
       }
+    },
+    "in_bastion_remnant": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "location": {
+          "feature": "minecraft:bastion_remnant"
+        }
+      }
     }
   },
   "requirements": [
@@ -56,6 +64,9 @@
     ],
     [
       "in_piglin_manor"
+    ],
+    [
+      "in_bastion_remnant"
     ]
   ]
 }
