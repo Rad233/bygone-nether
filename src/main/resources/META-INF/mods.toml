@@ -18,7 +18,7 @@ description="Remnants of the nether dimension's ancient history"
     mandatory=true
     versionRange="[1.18.1,1.19)"
 
-[[dependencies.repurposed_structures]]
+[[dependencies.bygonenether]]
     modId="forge"
     mandatory=true
     versionRange="[39.0.0,)"
