@@ -3,10 +3,7 @@
  import com.google.common.collect.ImmutableList;
  import com.google.common.collect.ImmutableSet;
  import com.izofar.bygonenether.entity.PiglinPrisoner;
- import com.izofar.bygonenether.entity.ai.behavior.ModStartAdmiringItemIfSeen;
- import com.izofar.bygonenether.entity.ai.behavior.ModStopAdmiringIfItemTooFarAway;
- import com.izofar.bygonenether.entity.ai.behavior.ModStopAdmiringIfTiredOfTryingToReachItem;
- import com.izofar.bygonenether.entity.ai.behavior.ModStopHoldingItemIfNoLongerAdmiring;
+ import com.izofar.bygonenether.entity.ai.behavior.*;
  import com.izofar.bygonenether.init.ModEntityTypes;
  import com.mojang.datafixers.util.Pair;
  import net.minecraft.core.BlockPos;
@@ -75,6 +72,7 @@
 	 private static void initIdleActivity(Brain<PiglinPrisoner> brain) {
 		 brain.addActivity(Activity.IDLE, 10,
 				 ImmutableList.of(
+						 new ModFollowTemptation(),
 						 new SetEntityLookTarget(PiglinPrisonerAi::isPlayerHoldingLovedItem, 14.0F),
 						 new StartAttacking<>(AbstractPiglin::isAdult, PiglinPrisonerAi::findNearestValidAttackTarget),
 						 avoidRepellent(),
@@ -333,6 +331,7 @@
 		 if (canAdmire(piglin, itemstack)) {
 			 ItemStack itemstack1 = itemstack.split(1);
 			 holdInOffhand(piglin, itemstack1);
+			 newTemptingPlayer(piglin, player);
 			 admireGoldItem(piglin);
 			 stopWalking(piglin);
 			 return InteractionResult.CONSUME;
@@ -428,6 +427,7 @@
 	 private static void putInInventory(PiglinPrisoner piglin, ItemStack stack) {
 		piglin.addToInventory(stack);
 		giveGoldBuff(piglin);
+		pledgeAllegiance(piglin);
 	}
 
 	 private static boolean hasCrossbow(LivingEntity entity) { return entity.isHolding(is -> is.getItem() instanceof net.minecraft.world.item.CrossbowItem); }
@@ -486,6 +486,16 @@
 	 private static void giveGoldBuff(PiglinPrisoner piglin){
 		 piglin.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 60 * 180, 3, false, true));
 		 piglin.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60 * 120, 1, false, false));
+	 }
+
+	 private static void newTemptingPlayer(PiglinPrisoner piglin, Player player){
+		piglin.getBrain().setMemory(MemoryModuleType.TEMPTING_PLAYER, player);
+		 piglin.getBrain().setMemory(MemoryModuleType.IS_TEMPTED, false);
+	 }
+
+	 protected static void pledgeAllegiance(PiglinPrisoner piglin){
+		if(piglin.getBrain().hasMemoryValue(MemoryModuleType.TEMPTING_PLAYER))
+			piglin.getBrain().setMemory(MemoryModuleType.IS_TEMPTED, true);
 	 }
 
 }

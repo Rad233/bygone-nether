@@ -52,7 +52,8 @@ public class PiglinPrisoner extends AbstractPiglin implements CrossbowAttackMob,
 			SensorType.NEAREST_PLAYERS,
 			SensorType.NEAREST_ITEMS,
 			SensorType.HURT_BY,
-			ModSensorTypes.PIGLIN_PRISONER_SPECIFIC_SENSOR.get()
+			ModSensorTypes.PIGLIN_PRISONER_SPECIFIC_SENSOR.get(),
+			ModSensorTypes.PIGLIN_PRISONER_RECRUITMENT_SENSOR.get()
 	);
 
 	protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
@@ -86,7 +87,9 @@ public class PiglinPrisoner extends AbstractPiglin implements CrossbowAttackMob,
 			MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
 			MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM,
 			MemoryModuleType.ATE_RECENTLY,
-			MemoryModuleType.NEAREST_REPELLENT
+			MemoryModuleType.NEAREST_REPELLENT,
+			MemoryModuleType.TEMPTING_PLAYER,
+			MemoryModuleType.IS_TEMPTED
 	);
 
 	private final SimpleContainer inventory = new SimpleContainer(8);
