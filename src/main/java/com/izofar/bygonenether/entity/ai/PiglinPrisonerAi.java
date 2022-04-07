@@ -19,6 +19,7 @@
  import net.minecraft.world.entity.EntityType;
  import net.minecraft.world.entity.LivingEntity;
  import net.minecraft.world.entity.Mob;
+ import net.minecraft.world.entity.PathfinderMob;
  import net.minecraft.world.entity.ai.Brain;
  import net.minecraft.world.entity.ai.behavior.*;
  import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -38,11 +39,24 @@
  import java.util.Collections;
  import java.util.List;
  import java.util.Optional;
+ import java.util.function.Predicate;
 
  public class PiglinPrisonerAi {
 
 	private static final UniformInt AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
 	 private static final int CELEBRATION_TIME = 200;
+
+	 private static final Predicate<PathfinderMob> isDistracted = (mob) -> {
+		 if(mob instanceof PiglinPrisoner piglin) {
+			 Brain<PiglinPrisoner> brain = piglin.getBrain();
+			 return brain.hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)
+					 || brain.hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_NEMESIS)
+					 || brain.hasMemoryValue(MemoryModuleType.AVOID_TARGET)
+					 || brain.getMemory(MemoryModuleType.DANCING).orElse(false)
+					 || !brain.getMemory(MemoryModuleType.IS_TEMPTED).orElse(false);
+		 }
+		 else return false;
+	 };
 
 	public static Brain<?> makeBrain(PiglinPrisoner piglin, Brain<PiglinPrisoner> brain) {
 		initCoreActivity(brain);
@@ -72,7 +86,7 @@
 	 private static void initIdleActivity(Brain<PiglinPrisoner> brain) {
 		 brain.addActivity(Activity.IDLE, 10,
 				 ImmutableList.of(
-						 new ModFollowTemptation(),
+						 new ModFollowLeader(isDistracted),
 						 new SetEntityLookTarget(PiglinPrisonerAi::isPlayerHoldingLovedItem, 14.0F),
 						 new StartAttacking<>(AbstractPiglin::isAdult, PiglinPrisonerAi::findNearestValidAttackTarget),
 						 avoidRepellent(),
@@ -331,7 +345,8 @@
 		 if (canAdmire(piglin, itemstack)) {
 			 ItemStack itemstack1 = itemstack.split(1);
 			 holdInOffhand(piglin, itemstack1);
-			 newTemptingPlayer(piglin, player);
+			 if(!piglin.getTempter().equals(player))
+				 newTemptingPlayer(piglin, player);
 			 admireGoldItem(piglin);
 			 stopWalking(piglin);
 			 return InteractionResult.CONSUME;
@@ -443,7 +458,7 @@
 	 private static void setAngerTargetIfCloserThanCurrent(AbstractPiglin piglin, LivingEntity target) {
 		 Optional<LivingEntity> optional = getAngerTarget(piglin);
 		 LivingEntity livingentity = BehaviorUtils.getNearestTarget(piglin, optional, target);
-		 if (!optional.isPresent() || optional.get() != livingentity)
+		 if (optional.isEmpty() || optional.get() != livingentity)
 			 setAngerTarget(piglin, livingentity);
 	 }
 
@@ -490,12 +505,18 @@
 
 	 private static void newTemptingPlayer(PiglinPrisoner piglin, Player player){
 		piglin.getBrain().setMemory(MemoryModuleType.TEMPTING_PLAYER, player);
-		 piglin.getBrain().setMemory(MemoryModuleType.IS_TEMPTED, false);
+		piglin.getBrain().setMemory(MemoryModuleType.IS_TEMPTED, false);
+		piglin.setTempterUUID(player.getUUID());
 	 }
 
 	 protected static void pledgeAllegiance(PiglinPrisoner piglin){
 		if(piglin.getBrain().hasMemoryValue(MemoryModuleType.TEMPTING_PLAYER))
 			piglin.getBrain().setMemory(MemoryModuleType.IS_TEMPTED, true);
+	 }
+
+	 public static void reloadAllegiance(PiglinPrisoner piglin, Player player){
+		 piglin.getBrain().setMemory(MemoryModuleType.TEMPTING_PLAYER, player);
+		 piglin.getBrain().setMemory(MemoryModuleType.IS_TEMPTED, true);
 	 }
 
 }

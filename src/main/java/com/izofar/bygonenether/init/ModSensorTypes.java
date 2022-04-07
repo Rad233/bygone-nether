@@ -1,7 +1,6 @@
 package com.izofar.bygonenether.init;
 
 import com.izofar.bygonenether.entity.ai.sensing.PiglinBruteSpecificSensor;
-import com.izofar.bygonenether.entity.ai.sensing.PiglinPrisonerRecruitmentSensor;
 import com.izofar.bygonenether.entity.ai.sensing.PiglinPrisonerSpecificSensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -16,8 +15,6 @@ public abstract class ModSensorTypes {
 	
 	public static final RegistryObject<SensorType<PiglinBruteSpecificSensor>> PIGLIN_BRUTE_SPECIFIC_SENSOR = VANILLA_SENSOR_TYPES.register("piglin_brute_specific_sensor", () -> new SensorType<>(PiglinBruteSpecificSensor::new));
 	public static final RegistryObject<SensorType<PiglinPrisonerSpecificSensor>> PIGLIN_PRISONER_SPECIFIC_SENSOR = MODDED_SENSOR_TYPES.register("piglin_prisoner_specific_sensor", () -> new SensorType<>(PiglinPrisonerSpecificSensor::new));
-	public static final RegistryObject<SensorType<PiglinPrisonerRecruitmentSensor>> PIGLIN_PRISONER_RECRUITMENT_SENSOR = MODDED_SENSOR_TYPES.register("piglin_prisoner_recruitment_sensor", () -> new SensorType(PiglinPrisonerRecruitmentSensor::new));
-
 
 	public static void register(IEventBus eventBus){
 		VANILLA_SENSOR_TYPES.register(eventBus);

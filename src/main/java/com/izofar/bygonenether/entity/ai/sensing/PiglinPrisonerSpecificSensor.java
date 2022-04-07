@@ -14,7 +14,6 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.WitherSkeleton;
-import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -50,7 +49,6 @@ public class PiglinPrisonerSpecificSensor extends Sensor<LivingEntity>{
 		Brain<?> brain = piglinprisoner.getBrain();
 		brain.setMemory(MemoryModuleType.NEAREST_REPELLENT, findNearestRepellent(level, piglinprisoner));
 		Optional<Mob> optional = Optional.empty();
-		Optional<Hoglin> optional2 = Optional.empty();
 		Optional<Piglin> optional3 = Optional.empty();
 		Optional<LivingEntity> optional4 = Optional.empty();
 		Optional<Player> optional6 = Optional.empty();
@@ -88,7 +86,6 @@ public class PiglinPrisonerSpecificSensor extends Sensor<LivingEntity>{
 		}
 
 		brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS, optional);
-		brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, optional2);
 		brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, optional4);
 		brain.setMemory(MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, optional6);
 		brain.setMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS, list1);

@@ -13,12 +13,17 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
-public class ModFollowTemptation extends Behavior<PathfinderMob> {
+public class ModFollowLeader extends Behavior<PathfinderMob> {
 
-    public static final int CLOSE_ENOUGH_DIST = 4;
+    private static final int TOO_FAR_DIST = 28;
+    private static final int TOO_CLOSE_DIST = 3;
+    private static final int CLOSE_ENOUGH_DIST = 6;
 
-    public ModFollowTemptation() {
+    private final Predicate<PathfinderMob> isDistracted;
+
+    public ModFollowLeader(Predicate<PathfinderMob> isDistracted) {
         super(Util.make(() -> {
             ImmutableMap.Builder<MemoryModuleType<?>, MemoryStatus> builder = ImmutableMap.builder();
             builder.put(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED);
@@ -26,6 +31,7 @@ public class ModFollowTemptation extends Behavior<PathfinderMob> {
             builder.put(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_PRESENT);
             return builder.build();
         }));
+        this.isDistracted = isDistracted;
     }
 
     private Optional<Player> getTemptingPlayer(PathfinderMob mob) {
@@ -42,22 +48,21 @@ public class ModFollowTemptation extends Behavior<PathfinderMob> {
         return this.getTemptingPlayer(mob).isPresent();
     }
 
-    protected void start(ServerLevel level, PathfinderMob mob, long p_147507_) {
-
-    }
-
     protected void stop(ServerLevel level, PathfinderMob mob, long p_147517_) {
         mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        mob.getBrain().eraseMemory(MemoryModuleType.TEMPTING_PLAYER);
+        mob.getBrain().eraseMemory(MemoryModuleType.IS_TEMPTED);
     }
 
     protected void tick(ServerLevel level, PathfinderMob mob, long p_147525_) {
-        Player player = this.getTemptingPlayer(mob).get();
+        if(this.isDistracted.test(mob)) return;
         Brain<?> brain = mob.getBrain();
-        if (mob.distanceToSqr(player) < CLOSE_ENOUGH_DIST * CLOSE_ENOUGH_DIST) {
+        Player player = this.getTemptingPlayer(mob).get();
+        double dist = mob.distanceToSqr(player);
+        if (dist < TOO_CLOSE_DIST * TOO_CLOSE_DIST) {
             brain.eraseMemory(MemoryModuleType.WALK_TARGET);
-        } else {
+        } else if(dist > CLOSE_ENOUGH_DIST * CLOSE_ENOUGH_DIST && dist < TOO_FAR_DIST * TOO_FAR_DIST) {
             brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(player, false), 1, 2));
         }
-
     }
 }
